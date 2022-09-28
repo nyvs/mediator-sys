@@ -1,3 +1,5 @@
+use std::sync::mpsc::TryRecvError;
+
 use async_std::sync::Mutex;
 use async_trait::async_trait;
 
@@ -46,7 +48,7 @@ impl<Ev> BasicAsyncMediator<Ev>
 where
     Ev: Clone,
 {
-    pub async fn next(&self) {
+    pub async fn next(&self) -> Result<(), TryRecvError> {
         let m = self.default.lock().await;
         m.next()
     }

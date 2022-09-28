@@ -1,4 +1,4 @@
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
 
 use super::{mediator::SyncMediatorInternal, request::RequestHandler};
 use crate::mediator::builder::{BasicBuilderInterface, Builder, BuilderInternal};
@@ -70,11 +70,15 @@ impl<Ev> BasicMediator<Ev>
 where
     Ev: Clone,
 {
-    pub fn next(&self) {
-        if let Some(ev) = self.channel.1.try_recv().ok() {
-            for listener in self.listener.iter() {
-                listener(ev.clone())
-            }
+    pub fn next(&self) -> Result<(), TryRecvError> {
+        match self.channel.1.try_recv() {
+            Ok(ev) => {
+                for listener in self.listener.iter() {
+                    listener(ev.clone())
+                }
+                Ok(())
+            },
+            Err(err) => Err(err),
         }
     }
 }

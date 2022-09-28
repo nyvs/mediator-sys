@@ -73,9 +73,9 @@ fn email_example_sync() {
         priority: 8,
     });
 
-    mediator.next();
-    mediator.next();
-    mediator.next();
+    mediator.next().ok();
+    mediator.next().ok();
+    mediator.next().ok();
 }
 
 #[cfg(not(feature = "async"))]
@@ -97,7 +97,7 @@ fn it_works_sync() {
         token: String::from("xyz"),
     }));
 
-    mediator.next();
+    mediator.next().ok();
 }
 
 #[cfg(not(feature = "async"))]
@@ -127,14 +127,14 @@ fn atomic_test_sync() {
 
     mediator.send(IncrementRequest);
 
-    mediator.next();
+    mediator.next().ok();
     assert_eq!(*(u.lock().unwrap()), 1usize);
 
     mediator.send(IncrementRequest);
     mediator.send(IncrementRequest);
 
-    mediator.next();
-    mediator.next();
+    mediator.next().ok();
+    mediator.next().ok();
 
     assert_eq!(*(u.lock().unwrap()), 3usize);
 }
@@ -203,9 +203,9 @@ fn email_example_async() {
             priority: 8,
         }).await;
 
-        async_mediator.next().await;
-        async_mediator.next().await;
-        async_mediator.next().await;
+        async_mediator.next().await.ok();
+        async_mediator.next().await.ok();
+        async_mediator.next().await.ok();
     });
 }
 
@@ -236,7 +236,7 @@ fn it_works_async() {
             }))
             .await;
 
-        async_mediator.next().await;
+        async_mediator.next().await.ok();
     })
 }
 
@@ -272,14 +272,14 @@ fn atomic_test_async() {
 
         async_mediator.send(IncrementRequest).await;
 
-        async_mediator.next().await;
+        async_mediator.next().await.ok();
         assert_eq!(*(u.lock().unwrap()), 1usize);
 
         async_mediator.send(IncrementRequest).await;
         async_mediator.send(IncrementRequest).await;
 
-        async_mediator.next().await;
-        async_mediator.next().await;
+        async_mediator.next().await.ok();
+        async_mediator.next().await.ok();
 
         assert_eq!(*(u.lock().unwrap()), 3usize);
     })

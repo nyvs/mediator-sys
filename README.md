@@ -65,11 +65,11 @@ mediator.send(UserMessageRequest {
 });
 
 // Prints: Ignored some Message
-mediator.next();
+mediator.next().ok();
 // Prints: Send Email with Message: Is Rust Memory Safe?
-mediator.next();
+mediator.next().ok();
 // Prints: Send SMS with Message: New Rust Version
-mediator.next();
+mediator.next().ok();
 
 ```
 
@@ -140,9 +140,9 @@ async_std::task::block_on(async {
         priority: 8,
     }).await;
 
-    async_mediator.next().await;
-    async_mediator.next().await;
-    async_mediator.next().await;
+    async_mediator.next().await.ok();
+    async_mediator.next().await.ok();
+    async_mediator.next().await.ok();
 });
 ```
 
