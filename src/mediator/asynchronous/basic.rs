@@ -3,16 +3,20 @@ use async_trait::async_trait;
 
 use crate::mediator::synchronous::{basic::BasicMediator, mediator::SyncMediatorInternal};
 
-use super::{request::AsyncRequestHandler, mediator::AsyncMediatorInternal};
+use super::{mediator::AsyncMediatorInternal, request::AsyncRequestHandler};
 
 pub struct BasicAsyncMediator<Ev>
-where Ev: Clone {
-    default: Mutex<BasicMediator<Ev>>
+where
+    Ev: Clone,
+{
+    default: Mutex<BasicMediator<Ev>>,
 }
 
 #[async_trait]
 impl<Ev> AsyncMediatorInternal<Ev> for BasicAsyncMediator<Ev>
-where Ev: Clone + Send {
+where
+    Ev: Clone + Send,
+{
     async fn publish(&self, event: Ev) {
         let m = self.default.lock().await;
         m.publish(event)
@@ -21,14 +25,16 @@ where Ev: Clone + Send {
     async fn send<Req>(&self, req: Req)
     where
         Self: AsyncRequestHandler<Req, Ev>,
-        Req: Send
+        Req: Send,
     {
         <Self as AsyncRequestHandler<Req, Ev>>::handle(self, req).await
     }
 }
 
 impl<Ev> From<BasicMediator<Ev>> for BasicAsyncMediator<Ev>
-where Ev: Clone + Send {
+where
+    Ev: Clone + Send,
+{
     fn from(value: BasicMediator<Ev>) -> Self {
         Self {
             default: Mutex::new(value),
@@ -37,7 +43,9 @@ where Ev: Clone + Send {
 }
 
 impl<Ev> BasicAsyncMediator<Ev>
-where Ev: Clone {
+where
+    Ev: Clone,
+{
     pub async fn next(&self) {
         let m = self.default.lock().await;
         m.next()

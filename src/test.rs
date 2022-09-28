@@ -17,6 +17,69 @@ struct LoginRequest(Login);
 
 #[cfg(not(feature = "async"))]
 #[test]
+fn email_example_sync() {
+    struct UserMessageRequest {
+        msg: String,
+        priority: u8,
+    }
+
+    #[derive(Clone)]
+    enum NotifyEvent {
+        Ignore,
+        SendEmail(String),
+        SendTextMessage(String),
+    }
+
+    impl RequestHandler<UserMessageRequest, NotifyEvent> for BasicMediator<NotifyEvent> {
+        fn handle(&self, req: UserMessageRequest) {
+            match req.priority {
+                0 => self.publish(NotifyEvent::Ignore),
+                1..=5 => self.publish(NotifyEvent::SendEmail(req.msg)),
+                _ => self.publish(NotifyEvent::SendTextMessage(req.msg)),
+            };
+        }
+    }
+
+    let mediator = BasicMediator::<NotifyEvent>::builder()
+        .add_listener(move |ev| {
+            if let NotifyEvent::Ignore = ev {
+                println!("Ignored some Message")
+            }
+        })
+        .add_listener(move |ev| {
+            if let NotifyEvent::SendEmail(msg) = ev {
+                println!("Send Email with Message: {}", msg)
+            }
+        })
+        .add_listener(move |ev| {
+            if let NotifyEvent::SendTextMessage(msg) = ev {
+                println!("Send SMS with Message: {}", msg)
+            }
+        })
+        .build();
+
+    mediator.send(UserMessageRequest {
+        msg: String::from("Hello World"),
+        priority: 0,
+    });
+
+    mediator.send(UserMessageRequest {
+        msg: String::from("Is Rust Memory Safe?"),
+        priority: 2,
+    });
+
+    mediator.send(UserMessageRequest {
+        msg: String::from("New Rust Version"),
+        priority: 8,
+    });
+
+    mediator.next();
+    mediator.next();
+    mediator.next();
+}
+
+#[cfg(not(feature = "async"))]
+#[test]
 fn it_works_sync() {
     impl RequestHandler<LoginRequest, AuthEvent> for BasicMediator<AuthEvent> {
         fn handle(&self, req: LoginRequest) {
@@ -27,9 +90,7 @@ fn it_works_sync() {
     }
 
     let mediator = BasicMediator::<AuthEvent>::builder()
-        .add_listener(move |ev| {
-            println!("my listened event: {:?}", ev)
-        })
+        .add_listener(move |ev| println!("my listened event: {:?}", ev))
         .build();
 
     mediator.send::<LoginRequest>(LoginRequest(Login {
@@ -60,7 +121,7 @@ fn atomic_test_sync() {
         .add_listener(move |_| {
             let mut m = cloned.lock().unwrap();
             let c = *m;
-            *m = c+1;
+            *m = c + 1;
         })
         .build();
 
@@ -94,19 +155,18 @@ fn it_works_async() {
 
     async_std::task::block_on(async {
         let mediator = BasicMediator::<AuthEvent>::builder()
-            .add_listener(move |ev| {
-                println!("my listened event: {:?}", ev)
-            })
+            .add_listener(move |ev| println!("my listened event: {:?}", ev))
             .build();
 
         let async_mediator = BasicAsyncMediator::<AuthEvent>::from(mediator);
 
-        async_mediator.send::<LoginRequest>(LoginRequest(Login {
-            token: String::from("xyz"),
-        })).await;
+        async_mediator
+            .send::<LoginRequest>(LoginRequest(Login {
+                token: String::from("xyz"),
+            }))
+            .await;
 
         async_mediator.next().await;
-        
     })
 }
 
@@ -134,7 +194,7 @@ fn atomic_test_async() {
             .add_listener(move |_| {
                 let mut m = cloned.lock().unwrap();
                 let c = *m;
-                *m = c+1;
+                *m = c + 1;
             })
             .build();
 
