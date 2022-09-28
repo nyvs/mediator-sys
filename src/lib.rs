@@ -1,3 +1,4 @@
+#![doc(html_root_url = "https://docs.rs/mediator-sys/0.1.0")]
 mod mediator;
 
 pub mod prelude {

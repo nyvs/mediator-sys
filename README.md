@@ -2,7 +2,7 @@
 [![Latest Release][crates-io-badge]][crates-io-url]
 [![Documentation][docs-rs-img]][docs-rs-url]
 
-A robust and effective inventory system for games.
+Event Mediator for synchronous and asynchronous environments.
 
 ## Usage
 ### Sync
