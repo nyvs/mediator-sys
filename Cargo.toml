@@ -2,10 +2,14 @@
 name = "mediator-sys"
 version = "0.1.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
-description = "Event mediator for synchronous and asynchronous environments"
 readme = "README.md"
+license = "MIT OR Apache-2.0"
+authors = ["Jan Strathmann <jwstrathmann@gmail.com>"]
+keywords = ["mediator", "eventmediator", "eventmanager", "events", "event"]
+categories = ["asynchronous", "data-structures"]
+description = "Strongly typed, extensible event mediator"
 repository = "https://github.com/nyvs/mediator-sys"
+homepage = "https://github.com/nyvs/mediator-sys"
 
 [dependencies]
 async-std = { version = "1.12.0", optional = true }

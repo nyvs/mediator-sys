@@ -2,7 +2,7 @@
 [![Latest Release][crates-io-badge]][crates-io-url]
 [![Documentation][docs-rs-img]][docs-rs-url]
 
-Event mediator for synchronous and asynchronous environments.
+Strongly typed, extensible event mediator.
 
 ## Usage
 ### Sync
