@@ -2,7 +2,7 @@
 [![Latest Release][crates-io-badge]][crates-io-url]
 [![Documentation][docs-rs-img]][docs-rs-url]
 
-Event Mediator for synchronous and asynchronous environments.
+Extensible event mediator for synchronous and asynchronous environments.
 
 ## Usage
 ### Sync
@@ -74,8 +74,8 @@ mediator.next();
 ```
 
 ### Async
-The async mediator uses the `BasicAsyncMediator` and the `AsyncRequestHandler`,
-Take a look at the test module for an example. The API is identical.
+The async mediator uses the `BasicAsyncMediator` and the `AsyncRequestHandler`.
+Take a look at the test module for an example.
 
 ## Features
 - sync and async mediator (use `async` feature)
