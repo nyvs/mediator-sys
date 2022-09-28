@@ -2,7 +2,7 @@
 [![Latest Release][crates-io-badge]][crates-io-url]
 [![Documentation][docs-rs-img]][docs-rs-url]
 
-Extensible event mediator for synchronous and asynchronous environments.
+Event mediator for synchronous and asynchronous environments.
 
 ## Usage
 ### Sync
@@ -75,81 +75,82 @@ mediator.next();
 
 ### Async
 <details>
-    <summary>Click to Open the Asynchronous Version</summary>
+<summary>Click to open the asynchronous version</summary>
 
-    ```rust
-    use mediator_sys::prelude::*;
-    use async_trait::async_trait;
+```rust
+use mediator_sys::prelude::*;
+use async_trait::async_trait;
 
-    struct UserMessageRequest {
-        msg: String,
-        priority: u8,
+struct UserMessageRequest {
+    msg: String,
+    priority: u8,
+}
+
+#[derive(Clone)]
+enum NotifyEvent {
+    Ignore,
+    SendEmail(String),
+    SendTextMessage(String),
+}
+
+#[async_trait]
+impl AsyncRequestHandler<UserMessageRequest, NotifyEvent> for BasicAsyncMediator<NotifyEvent> {
+    async fn handle(&self, req: UserMessageRequest) {
+        match req.priority {
+            0 => self.publish(NotifyEvent::Ignore).await,
+            1..=5 => self.publish(NotifyEvent::SendEmail(req.msg)).await,
+            _ => self.publish(NotifyEvent::SendTextMessage(req.msg)).await,
+        };
     }
+}
 
-    #[derive(Clone)]
-    enum NotifyEvent {
-        Ignore,
-        SendEmail(String),
-        SendTextMessage(String),
-    }
-
-    #[async_trait]
-    impl AsyncRequestHandler<UserMessageRequest, NotifyEvent> for BasicAsyncMediator<NotifyEvent> {
-        async fn handle(&self, req: UserMessageRequest) {
-            match req.priority {
-                0 => self.publish(NotifyEvent::Ignore).await,
-                1..=5 => self.publish(NotifyEvent::SendEmail(req.msg)).await,
-                _ => self.publish(NotifyEvent::SendTextMessage(req.msg)).await,
-            };
+let mediator = BasicMediator::<NotifyEvent>::builder()
+    .add_listener(move |ev| {
+        if let NotifyEvent::Ignore = ev {
+            println!("Ignored some Message")
         }
-    }
+    })
+    .add_listener(move |ev| {
+        if let NotifyEvent::SendEmail(msg) = ev {
+            println!("Send Email with Message: {}", msg)
+        }
+    })
+    .add_listener(move |ev| {
+        if let NotifyEvent::SendTextMessage(msg) = ev {
+            println!("Send SMS with Message: {}", msg)
+        }
+    })
+    .build();
 
-    let mediator = BasicMediator::<NotifyEvent>::builder()
-        .add_listener(move |ev| {
-            if let NotifyEvent::Ignore = ev {
-                println!("Ignored some Message")
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendEmail(msg) = ev {
-                println!("Send Email with Message: {}", msg)
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendTextMessage(msg) = ev {
-                println!("Send SMS with Message: {}", msg)
-            }
-        })
-        .build();
+async_std::task::block_on(async {
+    let async_mediator = BasicAsyncMediator::<NotifyEvent>::from(mediator);
 
-    async_std::task::block_on(async {
-        let async_mediator = BasicAsyncMediator::<NotifyEvent>::from(mediator);
+    async_mediator.send(UserMessageRequest {
+        msg: String::from("Hello World"),
+        priority: 0,
+    }).await;
 
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("Hello World"),
-            priority: 0,
-        }).await;
-    
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("Is Rust Memory Safe?"),
-            priority: 2,
-        }).await;
-    
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("New Rust Version"),
-            priority: 8,
-        }).await;
+    async_mediator.send(UserMessageRequest {
+        msg: String::from("Is Rust Memory Safe?"),
+        priority: 2,
+    }).await;
 
-        async_mediator.next().await;
-        async_mediator.next().await;
-        async_mediator.next().await;
-    });
-    ```
+    async_mediator.send(UserMessageRequest {
+        msg: String::from("New Rust Version"),
+        priority: 8,
+    }).await;
+
+    async_mediator.next().await;
+    async_mediator.next().await;
+    async_mediator.next().await;
+});
+```
+
 </details>
 
 ## Features
 - sync and async mediator (use `async` feature)
-- compiler-baked typing (no `std::any::Any`)
+- compiler-baked typing
 - extensible
 
 ## Contributions
