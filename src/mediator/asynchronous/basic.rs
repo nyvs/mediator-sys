@@ -1,15 +1,16 @@
 use std::sync::mpsc::TryRecvError;
 
+use crate::mediator::synchronous::{basic::BasicMediator, mediator::SyncMediatorInternal};
 use async_std::sync::Mutex;
 use async_trait::async_trait;
-
-use crate::mediator::synchronous::{basic::BasicMediator, mediator::SyncMediatorInternal};
+use std::fmt::Debug;
 
 use super::{mediator::AsyncMediatorInternal, request::AsyncRequestHandler};
 
+#[derive(Debug)]
 pub struct BasicAsyncMediator<Ev>
 where
-    Ev: Clone,
+    Ev: Clone + Debug,
 {
     default: Mutex<BasicMediator<Ev>>,
 }
@@ -17,7 +18,7 @@ where
 #[async_trait]
 impl<Ev> AsyncMediatorInternal<Ev> for BasicAsyncMediator<Ev>
 where
-    Ev: Clone + Send,
+    Ev: Clone + Send + Debug,
 {
     async fn publish(&self, event: Ev) {
         let m = self.default.lock().await;
@@ -35,7 +36,7 @@ where
 
 impl<Ev> From<BasicMediator<Ev>> for BasicAsyncMediator<Ev>
 where
-    Ev: Clone + Send,
+    Ev: Clone + Send + Debug,
 {
     fn from(value: BasicMediator<Ev>) -> Self {
         Self {
@@ -46,7 +47,7 @@ where
 
 impl<Ev> BasicAsyncMediator<Ev>
 where
-    Ev: Clone,
+    Ev: Clone + Debug,
 {
     pub async fn next(&self) -> Result<(), TryRecvError> {
         let m = self.default.lock().await;

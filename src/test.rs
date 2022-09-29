@@ -23,7 +23,7 @@ fn email_example_sync() {
         priority: u8,
     }
 
-    #[derive(Clone)]
+    #[derive(Debug, Clone)]
     enum NotifyEvent {
         Ignore,
         SendEmail(String),
@@ -106,7 +106,7 @@ fn atomic_test_sync() {
     use std::sync::{Arc, Mutex};
 
     struct IncrementRequest;
-    #[derive(Clone)]
+    #[derive(Debug, Clone)]
     struct IncrementEvent;
 
     impl RequestHandler<IncrementRequest, IncrementEvent> for BasicMediator<IncrementEvent> {
@@ -149,7 +149,7 @@ fn email_example_async() {
         priority: u8,
     }
 
-    #[derive(Clone)]
+    #[derive(Debug, Clone)]
     enum NotifyEvent {
         Ignore,
         SendEmail(String),
@@ -188,20 +188,26 @@ fn email_example_async() {
     async_std::task::block_on(async {
         let async_mediator = BasicAsyncMediator::<NotifyEvent>::from(mediator);
 
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("Hello World"),
-            priority: 0,
-        }).await;
-    
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("Is Rust Memory Safe?"),
-            priority: 2,
-        }).await;
-    
-        async_mediator.send(UserMessageRequest {
-            msg: String::from("New Rust Version"),
-            priority: 8,
-        }).await;
+        async_mediator
+            .send(UserMessageRequest {
+                msg: String::from("Hello World"),
+                priority: 0,
+            })
+            .await;
+
+        async_mediator
+            .send(UserMessageRequest {
+                msg: String::from("Is Rust Memory Safe?"),
+                priority: 2,
+            })
+            .await;
+
+        async_mediator
+            .send(UserMessageRequest {
+                msg: String::from("New Rust Version"),
+                priority: 8,
+            })
+            .await;
 
         async_mediator.next().await.ok();
         async_mediator.next().await.ok();
@@ -247,7 +253,7 @@ fn atomic_test_async() {
     use std::sync::{Arc, Mutex};
 
     struct IncrementRequest;
-    #[derive(Clone)]
+    #[derive(Debug, Clone)]
     struct IncrementEvent;
 
     #[async_trait]

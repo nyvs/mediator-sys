@@ -1,3 +1,6 @@
+use super::listener::Listener;
+use std::fmt::Debug;
+
 pub trait BuilderInternal
 where
     Self: Sized,
@@ -8,7 +11,8 @@ where
 pub trait BasicBuilderInterface<M, Ev> {
     fn add_listener<F>(self, f: F) -> Self
     where
-        F: Send + Fn(Ev) -> () + 'static;
+        F: Listener<Ev>,
+        Ev: Clone + Debug;
 }
 
 pub struct Builder<M> {
