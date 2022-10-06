@@ -14,7 +14,7 @@ struct UserMessageRequest {
     priority: u8,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 enum NotifyEvent {
     Ignore,
     SendEmail(String),
@@ -70,7 +70,6 @@ mediator.next().ok();
 mediator.next().ok();
 // Prints: Send SMS with Message: New Rust Version
 mediator.next().ok();
-
 ```
 
 ### Async
@@ -86,7 +85,7 @@ struct UserMessageRequest {
     priority: u8,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 enum NotifyEvent {
     Ignore,
     SendEmail(String),
@@ -104,7 +103,7 @@ impl AsyncRequestHandler<UserMessageRequest, NotifyEvent> for BasicAsyncMediator
     }
 }
 
-let mediator = BasicMediator::<NotifyEvent>::builder()
+let async_mediator = BasicAsyncMediator::<NotifyEvent>::builder()
     .add_listener(move |ev| {
         if let NotifyEvent::Ignore = ev {
             println!("Ignored some Message")
@@ -123,8 +122,6 @@ let mediator = BasicMediator::<NotifyEvent>::builder()
     .build();
 
 async_std::task::block_on(async {
-    let async_mediator = BasicAsyncMediator::<NotifyEvent>::from(mediator);
-
     async_mediator.send(UserMessageRequest {
         msg: String::from("Hello World"),
         priority: 0,
