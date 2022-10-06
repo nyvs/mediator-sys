@@ -1,20 +1,5 @@
 use super::prelude::*;
 
-#[derive(Debug, Clone)]
-enum AuthEventType {
-    Login,
-}
-
-#[derive(Debug, Clone)]
-struct Login {
-    token: String,
-}
-
-#[derive(Debug, Clone)]
-struct AuthEvent(Login, AuthEventType);
-
-struct LoginRequest(Login);
-
 #[cfg(not(feature = "async"))]
 #[test]
 fn email_example_sync() {
@@ -56,7 +41,8 @@ fn email_example_sync() {
                 println!("Send SMS with Message: {}", msg)
             }
         })
-        .build();
+        .build()
+        .unwrap();
 
     mediator.send(UserMessageRequest {
         msg: String::from("Hello World"),
@@ -75,28 +61,6 @@ fn email_example_sync() {
 
     mediator.next().ok();
     mediator.next().ok();
-    mediator.next().ok();
-}
-
-#[cfg(not(feature = "async"))]
-#[test]
-fn it_works_sync() {
-    impl RequestHandler<LoginRequest, AuthEvent> for BasicMediator<AuthEvent> {
-        fn handle(&self, req: LoginRequest) {
-            if req.0.token == String::from("xyz") {
-                self.publish(AuthEvent(req.0, AuthEventType::Login))
-            }
-        }
-    }
-
-    let mediator = BasicMediator::<AuthEvent>::builder()
-        .add_listener(move |ev| println!("my listened event: {:?}", ev))
-        .build();
-
-    mediator.send::<LoginRequest>(LoginRequest(Login {
-        token: String::from("xyz"),
-    }));
-
     mediator.next().ok();
 }
 
@@ -123,7 +87,8 @@ fn atomic_test_sync() {
             let c = *m;
             *m = c + 1;
         })
-        .build();
+        .build()
+        .unwrap();
 
     mediator.send(IncrementRequest);
 
@@ -167,7 +132,7 @@ fn email_example_async() {
         }
     }
 
-    let mediator = BasicMediator::<NotifyEvent>::builder()
+    let async_mediator = BasicAsyncMediator::<NotifyEvent>::builder()
         .add_listener(move |ev| {
             if let NotifyEvent::Ignore = ev {
                 println!("Ignored some Message")
@@ -183,11 +148,10 @@ fn email_example_async() {
                 println!("Send SMS with Message: {}", msg)
             }
         })
-        .build();
+        .build()
+        .unwrap();
 
     async_std::task::block_on(async {
-        let async_mediator = BasicAsyncMediator::<NotifyEvent>::from(mediator);
-
         async_mediator
             .send(UserMessageRequest {
                 msg: String::from("Hello World"),
@@ -217,37 +181,6 @@ fn email_example_async() {
 
 #[cfg(feature = "async")]
 #[test]
-fn it_works_async() {
-    use async_trait::async_trait;
-
-    #[async_trait]
-    impl AsyncRequestHandler<LoginRequest, AuthEvent> for BasicAsyncMediator<AuthEvent> {
-        async fn handle(&self, req: LoginRequest) {
-            if req.0.token == String::from("xyz") {
-                self.publish(AuthEvent(req.0, AuthEventType::Login)).await
-            }
-        }
-    }
-
-    async_std::task::block_on(async {
-        let mediator = BasicMediator::<AuthEvent>::builder()
-            .add_listener(move |ev| println!("my listened event: {:?}", ev))
-            .build();
-
-        let async_mediator = BasicAsyncMediator::<AuthEvent>::from(mediator);
-
-        async_mediator
-            .send::<LoginRequest>(LoginRequest(Login {
-                token: String::from("xyz"),
-            }))
-            .await;
-
-        async_mediator.next().await.ok();
-    })
-}
-
-#[cfg(feature = "async")]
-#[test]
 fn atomic_test_async() {
     use async_trait::async_trait;
     use std::sync::{Arc, Mutex};
@@ -266,15 +199,14 @@ fn atomic_test_async() {
     async_std::task::block_on(async {
         let u = Arc::new(Mutex::new(0usize));
         let cloned = u.clone();
-        let mediator = BasicMediator::<IncrementEvent>::builder()
+        let async_mediator = BasicAsyncMediator::<IncrementEvent>::builder()
             .add_listener(move |_| {
                 let mut m = cloned.lock().unwrap();
                 let c = *m;
                 *m = c + 1;
             })
-            .build();
-
-        let async_mediator = BasicAsyncMediator::<IncrementEvent>::from(mediator);
+            .build()
+            .unwrap();
 
         async_mediator.send(IncrementRequest).await;
 
@@ -288,5 +220,109 @@ fn atomic_test_async() {
         async_mediator.next().await.ok();
 
         assert_eq!(*(u.lock().unwrap()), 3usize);
+    })
+}
+
+#[cfg(feature = "async")]
+#[test]
+fn cxaware_mediator_atomic_test_async() {
+    use async_trait::async_trait;
+    use std::sync::{Arc, Mutex};
+
+    struct IncrementRequest;
+    #[derive(Debug, Clone)]
+    struct IncrementEvent(usize);
+
+    let base_num: usize = 3;
+
+    #[async_trait]
+    impl CxAwareAsyncRequestHandler<usize, IncrementRequest, IncrementEvent>
+        for CxAwareAsyncMediator<usize, IncrementEvent>
+    {
+        async fn handle(&self, _req: IncrementRequest, dep: &usize) {
+            self.publish(IncrementEvent(dep.clone())).await
+        }
+    }
+
+    async_std::task::block_on(async {
+        let u = Arc::new(Mutex::new(0usize));
+        let cloned = u.clone();
+        let async_mediator = CxAwareAsyncMediator::<usize, IncrementEvent>::builder()
+            .add_listener(move |x: IncrementEvent| {
+                let mut m = cloned.lock().unwrap();
+                let c = *m;
+                *m = c + x.0;
+            })
+            .add_dependency(base_num)
+            .build()
+            .unwrap();
+
+        async_mediator.send(IncrementRequest).await;
+
+        async_mediator.next().await.ok();
+        assert_eq!(*(u.lock().unwrap()), 3usize);
+
+        async_mediator.send(IncrementRequest).await;
+        async_mediator.send(IncrementRequest).await;
+
+        async_mediator.next().await.ok();
+        async_mediator.next().await.ok();
+
+        assert_eq!(*(u.lock().unwrap()), 9usize);
+    })
+}
+
+#[cfg(feature = "async")]
+#[test]
+fn dependent_mediator_atomic_arc_test_async() {
+    use async_trait::async_trait;
+    use std::sync::{Arc, Mutex};
+
+    struct IncrementRequest;
+    #[derive(Debug, Clone)]
+    struct IncrementEvent(usize);
+
+    let base_num: Arc<Mutex<usize>> = Arc::new(Mutex::new(5));
+
+    #[async_trait]
+    impl CxAwareAsyncRequestHandler<Arc<Mutex<usize>>, IncrementRequest, IncrementEvent>
+        for CxAwareAsyncMediator<Arc<Mutex<usize>>, IncrementEvent>
+    {
+        async fn handle(&self, _req: IncrementRequest, dep: &Arc<Mutex<usize>>) {
+            let c = {
+                let mut m = dep.lock().unwrap();
+                *m = *m - 1;
+                m.clone() + 1
+            };
+
+            self.publish(IncrementEvent(c)).await
+        }
+    }
+
+    async_std::task::block_on(async {
+        let u = Arc::new(Mutex::new(0usize));
+        let cloned = u.clone();
+        let async_mediator = CxAwareAsyncMediator::<Arc<Mutex<usize>>, IncrementEvent>::builder()
+            .add_listener(move |x: IncrementEvent| {
+                let mut m = cloned.lock().unwrap();
+                let c = *m;
+                *m = c + x.0;
+            })
+            .add_dependency(base_num)
+            .build()
+            .unwrap();
+
+        async_mediator.send(IncrementRequest).await;
+
+        async_mediator.next().await.ok();
+        assert_eq!(*(u.lock().unwrap()), 5usize);
+
+        async_mediator.send(IncrementRequest).await;
+        async_mediator.send(IncrementRequest).await;
+
+        async_mediator.next().await.ok();
+        async_mediator.next().await.ok();
+
+        assert_eq!(*(u.lock().unwrap()), 12usize);
     })
 }

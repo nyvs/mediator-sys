@@ -4,12 +4,11 @@ mod mediator;
 pub mod prelude {
     #[cfg(feature = "async")]
     pub use super::mediator::asynchronous::{
-        basic::BasicAsyncMediator, mediator::AsyncMediatorInternal, request::AsyncRequestHandler,
+        basic::{basic::BasicAsyncMediator, interface::*},
+        contextaware::{contextaware::CxAwareAsyncMediator, interface::*},
     };
-    pub use super::mediator::builder::{BasicBuilderInterface, Builder, BuilderInternal};
-    pub use super::mediator::synchronous::{
-        basic::BasicMediator, mediator::SyncMediatorInternal, request::RequestHandler,
-    };
+    pub use super::mediator::builder::*;
+    pub use super::mediator::synchronous::basic::{basic::BasicMediator, interface::*};
 }
 
 #[cfg(test)]
