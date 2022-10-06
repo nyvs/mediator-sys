@@ -1,8 +1,10 @@
-use crate::{
-    mediator::{builder::BuilderFlow, listener::Listener},
-    prelude::{BasicMediator, BasicMediatorBuilderInterface, BuilderInternal},
+use super::{basic::BasicMediator, interface::BasicMediatorBuilderInterface};
+use crate::mediator::{
+    builder::{BuilderFlow, BuilderInternal},
+    listener::Listener,
 };
 use std::{fmt::Debug, sync::mpsc::channel};
+
 pub struct BasicBuilder<Ev>
 where
     Ev: Debug,
@@ -53,8 +55,7 @@ impl<Ev> BuilderFlow<BasicMediator<Ev>> for BasicBuilder<Ev>
 where
     Ev: Debug,
 {
-    type Error = ();
-    fn build(self) -> Result<BasicMediator<Ev>, Self::Error> {
-        Ok(self.mediator)
+    fn build(self) -> BasicMediator<Ev> {
+        self.mediator
     }
 }

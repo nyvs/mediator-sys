@@ -1,11 +1,15 @@
 use async_std::sync::Mutex;
 
-use crate::{
-    mediator::{builder::BuilderFlow, listener::Listener},
-    prelude::{
-        BasicAsyncMediator, BasicMediator, BasicMediatorBuilderInterface, BuilderInternal,
-        CxAwareAsyncMediator, CxAwareMediatorBuilderInterface,
+use crate::mediator::{
+    asynchronous::{
+        basic::basic::BasicAsyncMediator,
+        contextaware::{
+            contextaware::CxAwareAsyncMediator, interface::CxAwareMediatorBuilderInterface,
+        },
     },
+    builder::{TryBuilderFlow, TryBuilderInternal},
+    listener::Listener,
+    synchronous::basic::{basic::BasicMediator, interface::BasicMediatorBuilderInterface},
 };
 use std::{fmt::Debug, sync::mpsc::channel};
 
@@ -18,7 +22,7 @@ where
     dep: Option<Dep>,
 }
 
-impl<Dep, Ev> BuilderInternal<CxAwareAsyncMediator<Dep, Ev>, CxAwareAsyncBuilder<Dep, Ev>>
+impl<Dep, Ev> TryBuilderInternal<CxAwareAsyncMediator<Dep, Ev>, CxAwareAsyncBuilder<Dep, Ev>>
     for CxAwareAsyncMediator<Dep, Ev>
 where
     Dep: Debug,
@@ -85,7 +89,7 @@ where
 #[derive(Debug)]
 pub struct NoCxAvailable;
 
-impl<Dep, Ev> BuilderFlow<CxAwareAsyncMediator<Dep, Ev>> for CxAwareAsyncBuilder<Dep, Ev>
+impl<Dep, Ev> TryBuilderFlow<CxAwareAsyncMediator<Dep, Ev>> for CxAwareAsyncBuilder<Dep, Ev>
 where
     Dep: Debug,
     Ev: Debug,

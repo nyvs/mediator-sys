@@ -41,8 +41,7 @@ fn email_example_sync() {
                 println!("Send SMS with Message: {}", msg)
             }
         })
-        .build()
-        .unwrap();
+        .build();
 
     mediator.send(UserMessageRequest {
         msg: String::from("Hello World"),
@@ -87,8 +86,7 @@ fn atomic_test_sync() {
             let c = *m;
             *m = c + 1;
         })
-        .build()
-        .unwrap();
+        .build();
 
     mediator.send(IncrementRequest);
 
@@ -148,8 +146,7 @@ fn email_example_async() {
                 println!("Send SMS with Message: {}", msg)
             }
         })
-        .build()
-        .unwrap();
+        .build();
 
     async_std::task::block_on(async {
         async_mediator
@@ -205,8 +202,7 @@ fn atomic_test_async() {
                 let c = *m;
                 *m = c + 1;
             })
-            .build()
-            .unwrap();
+            .build();
 
         async_mediator.send(IncrementRequest).await;
 
@@ -274,7 +270,7 @@ fn cxaware_mediator_atomic_test_async() {
 
 #[cfg(feature = "async")]
 #[test]
-fn dependent_mediator_atomic_arc_test_async() {
+fn cxaware_mediator_atomic_arc_test_async() {
     use async_trait::async_trait;
     use std::sync::{Arc, Mutex};
 

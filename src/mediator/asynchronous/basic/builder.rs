@@ -1,8 +1,10 @@
 use async_std::sync::Mutex;
 
-use crate::{
-    mediator::{builder::BuilderFlow, listener::Listener},
-    prelude::{BasicAsyncMediator, BasicMediator, BasicMediatorBuilderInterface, BuilderInternal},
+use crate::mediator::{
+    asynchronous::basic::basic::BasicAsyncMediator,
+    builder::{BuilderFlow, BuilderInternal},
+    listener::Listener,
+    synchronous::basic::{basic::BasicMediator, interface::BasicMediatorBuilderInterface},
 };
 use std::{fmt::Debug, sync::mpsc::channel};
 
@@ -56,10 +58,9 @@ impl<Ev> BuilderFlow<BasicAsyncMediator<Ev>> for BasicAsyncBuilder<Ev>
 where
     Ev: Debug,
 {
-    type Error = ();
-    fn build(self) -> Result<BasicAsyncMediator<Ev>, Self::Error> {
-        Ok(BasicAsyncMediator {
+    fn build(self) -> BasicAsyncMediator<Ev> {
+        BasicAsyncMediator {
             basic: Mutex::new(self.mediator),
-        })
+        }
     }
 }
