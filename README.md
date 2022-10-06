@@ -149,8 +149,8 @@ async_std::task::block_on(async {
 </details>
 
 ## Features
-- sync and async mediator (use `async` feature)
-- `CxAwareMediator` (use `async` feature, carries a Dependency of your choice)
+- sync and async (use `async` feature) mediators 
+- `CxAwareMediator` (use `async` feature, carries a dependency of your choice)
 - compiler-baked typing
 - extensible architecture
 
