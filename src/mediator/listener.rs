@@ -13,6 +13,6 @@ where
 impl<Ev, F> Listener<Ev> for F
 where
     F: Fn(Ev) -> () + Send + 'static,
-    Ev: Clone + Debug,
+    Ev: Debug + Clone,
 {
 }

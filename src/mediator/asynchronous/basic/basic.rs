@@ -50,7 +50,7 @@ where
 #[async_trait]
 impl<Ev> AsyncMediatorInternalNext for BasicAsyncMediator<Ev>
 where
-    Ev: Clone + Debug + Send,
+    Ev: Debug + Clone + Send,
 {
     async fn next(&self) -> Result<(), TryRecvError> {
         let m = self.basic.lock().await;

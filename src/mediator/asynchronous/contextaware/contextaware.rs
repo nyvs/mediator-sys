@@ -52,7 +52,7 @@ where
 impl<Dep, Ev> AsyncMediatorInternalNext for CxAwareAsyncMediator<Dep, Ev>
 where
     Dep: Debug + Send,
-    Ev: Clone + Debug + Send,
+    Ev: Debug + Clone + Send,
 {
     async fn next(&self) -> Result<(), TryRecvError> {
         self.basic.next().await

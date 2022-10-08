@@ -39,7 +39,7 @@ where
 
 impl<Ev> SyncMediatorInternalNext for BasicMediator<Ev>
 where
-    Ev: Clone + Debug,
+    Ev: Debug + Clone,
 {
     fn next(&self) -> Result<(), TryRecvError> {
         match self.channel.1.try_recv() {
