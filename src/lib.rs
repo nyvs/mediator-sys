@@ -18,7 +18,7 @@
 //! In turn, the [`BasicAsyncMediator`] is used as a basis for the [`CxAwareAsyncMediator`].
 //! This way, code duplication is minimal and the code in general is less error-prone.
 //!
-//! Each mediator consists of a module for its own builder, interface and the mediator itself.
+//! Each mediator consists of a module for its own builder, interface and the implementation itself.
 //!
 //! Builders implement basic functionality [`builder::BuilderInternal`] and [`builder::BuilderFlow`] if
 //! the builder is required to always be able to return a valid mediator.
