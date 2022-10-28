@@ -1,6 +1,4 @@
-//! Mediator for synchronous and asynchronous needs
-//!
-//! mediator_sys provides multiple mediators.
+//! mediator_sys provides multiple strongly-typed mediators for synchronous and asynchronous needs.
 //!
 //! # Quick Start
 //!
