@@ -61,7 +61,7 @@ where
     /// To be able to supply a closure that implements [`Listener`],
     /// it must satisfy [`Send`] and `'static` bounds.
     ///
-    /// Also it must be a [`Fn(Ev)`] with a return type of `()`
+    /// Also it must be a `Fn(Ev)` with a return type of `()`
     /// where `Ev` is the user-defined event type
     /// that must be [`Clone`] and [`Debug`].
     ///
@@ -100,7 +100,7 @@ where
     /// Adds a user-defined listener to the [`CxAwareAsyncBuilder`].
     ///
     /// The supplied type must be a [`Listener`].
-    /// As such, it must implement [`Send`] and [`Fn(Ev)`],
+    /// As such, it must implement [`Send`] and `Fn(Ev)`,
     /// besides being `'static`.
     ///
     /// As a side note, here, `Ev` is the user-defined event type
