@@ -3,6 +3,7 @@
 [![Documentation][docs-rs-img]][docs-rs-url]
 
 Strongly typed, extensible event mediator.
+For more info and explanation, please see the [docs][docs-rs-url].
 
 ## Usage
 ### Sync
@@ -150,6 +151,10 @@ async_std::task::block_on(async {
 - `CxAwareMediator` (use `async` feature, carries a dependency of your choice)
 - compiler-baked typing
 - extensible architecture
+
+## Todo
+- remove `Clone` bound on events `Ev` for `SyncMediatorInternalNext`.
+- internally, make builders function in an "additive" way.
 
 ## Contributions
 Feel free to open an issue/PR explaining possible improvements or changes.
