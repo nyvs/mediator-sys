@@ -9,13 +9,13 @@ use crate::mediator::{
 use std::{fmt::Debug, sync::mpsc::channel};
 
 /// The [`BasicAsyncBuilder`] helps you to create a [`BasicAsyncMediator`].
-/// 
+///
 /// The [`BasicAsyncBuilder`] is part of the builder pattern.
 /// It has only two functionalities. The first one is adding a [`Listener`] via
 /// [`BasicAsyncBuilder::add_listener()`].
 /// The second one is the mandatory [`BuilderFlow::build()`], which returns
 /// a [`BasicAsyncMediator`].
-/// 
+///
 pub struct BasicAsyncBuilder<Ev>
 where
     Ev: Debug,
@@ -28,7 +28,7 @@ where
     Ev: Debug,
 {
     /// Creates a [`BasicAsyncBuilder`] with the goal of producing a [`BasicAsyncMediator`].
-    /// 
+    ///
     fn builder() -> BasicAsyncBuilder<Ev> {
         BasicAsyncBuilder::<Ev> {
             mediator: BasicMediator::<Ev> {
@@ -44,14 +44,14 @@ where
     Ev: Debug,
 {
     /// Adds a user-defined listener to the [`BasicAsyncBuilder`].
-    /// 
+    ///
     /// To be able to supply a closure that implements [`Listener`],
     /// it must satisfy [`Send`] and `'static` bounds.
-    /// 
+    ///
     /// Also it must be a [`Fn(Ev)`] with a return type of `()`
     /// where `Ev` is the user-defined event type
     /// that must be [`Clone`] and [`Debug`].
-    /// 
+    ///
     fn add_listener<F>(mut self, f: F) -> Self
     where
         F: Listener<Ev>,
@@ -66,33 +66,33 @@ where
     Ev: Debug,
 {
     /// Adds a user-defined listener to the [`BasicAsyncBuilder`].
-    /// 
+    ///
     /// The supplied type must be a [`Listener`].
     /// As such, it must implement [`Send`] and [`Fn(Ev)`],
     /// besides being `'static`.
-    /// 
+    ///
     /// As a side note, here, `Ev` is the user-defined event type
     /// that must be [`Clone`] and [`Debug`].
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// Basic usage:
-    /// 
+    ///
     /// ```
     /// use mediator_sys::asynchronous::basic::*;
-    /// 
+    ///
     /// #[derive(Debug, Clone)]
     /// enum MyEvent {
     ///     One,
     ///     Two
     /// }
-    /// 
+    ///
     /// let mediator = BasicAsyncMediator::<MyEvent>::builder()
     ///     .add_listener(|ev| {
     ///         /* Your listening logic */
     ///     })
     ///     .build();
-    /// 
+    ///
     pub fn add_listener<F>(self, f: F) -> Self
     where
         F: Listener<Ev>,
@@ -106,12 +106,12 @@ where
     Ev: Debug,
 {
     /// Builds the [`BasicAsyncMediator`] and returns it.
-    /// 
+    ///
     /// Because [`BasicAsyncMediator`] implements [`BuilderInternal`],
     /// which in turn means, that the [`BasicAsyncBuilder`] implements [`BuilderFlow`]
     /// and not [`crate::builder::TryBuilderFlow`], this method will
     /// always return a [`BasicAsyncMediator`] as stated by the return type.
-    /// 
+    ///
     fn build(self) -> BasicAsyncMediator<Ev> {
         BasicAsyncMediator {
             basic: Mutex::new(self.mediator),

@@ -46,7 +46,7 @@ fn atomic_test_async() {
     use std::sync::{Arc, Mutex};
 
     use crate::asynchronous::basic::*;
-    
+
     struct IncrementRequest;
     #[derive(Debug, Clone)]
     struct IncrementEvent;
