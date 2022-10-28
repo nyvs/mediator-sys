@@ -55,7 +55,7 @@ where
 {
     /// Publishes an event `Ev` asynchronously.
     ///
-    /// This method locks the [`async_std::sync::Mutex`] and instructs
+    /// This method locks the `Mutex` and instructs
     /// the underlying [`BasicMediator`] to publish an event.
     /// Best used within [`AsyncRequestHandler::handle()`].
     ///
@@ -122,7 +122,7 @@ where
 {
     /// Process the next published event `Ev` asynchronously.
     ///
-    /// This method locks the [`async_std::sync::Mutex`] and instructs
+    /// This method locks the `Mutex` and instructs
     /// the underlying [`BasicMediator`] to process the next event.
     ///
     /// See [`BasicMediator::next()`] for more info.

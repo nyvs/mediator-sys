@@ -11,7 +11,7 @@ use super::*;
 /// Context aware async mediator for asynchronous environments with events of type `Ev`.
 ///
 /// Uses an underlying [`BasicAsyncMediator`] for base functionality
-/// and a [`async_std::sync::Mutex`] to store the user-defined dependency `Dep`.
+/// and a `Mutex` to store the user-defined dependency `Dep`.
 ///
 /// # Examples
 ///
@@ -113,6 +113,7 @@ where
     ///
     /// The request will be processed internally by [`CxAwareAsyncRequestHandler::handle()`].
     /// This is why it is required to implement [`CxAwareAsyncRequestHandler`] for [`CxAwareAsyncMediator`].
+    /// A `Mutex` will be locked in order to gain access to the Context `Dep`.
     ///
     /// You need to await the `Future` using `.await`.
     ///
