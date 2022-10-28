@@ -135,7 +135,7 @@ where
     ///
     /// The request will be processed internally by [`CxAwareAsyncRequestHandler::handle()`].
     /// This is why it is required to implement [`CxAwareAsyncRequestHandler`] for [`CxAwareAsyncMediator`].
-    /// A `Mutex` will be locked in order to gain access to the Context `Dep`.
+    /// A `Mutex` will be locked in order to gain access to the context `Dep`.
     ///
     /// You need to await the `Future` using `.await`.
     ///
