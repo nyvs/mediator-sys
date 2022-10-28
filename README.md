@@ -7,7 +7,7 @@ Strongly typed, extensible event mediator.
 ## Usage
 ### Sync
 ```rust
-use mediator_sys::prelude::*;
+use mediator_sys::synchronous::basic::*;
 
 struct UserMessageRequest {
     msg: String,
@@ -77,7 +77,7 @@ mediator.next().ok();
 <summary>Click to open the asynchronous version</summary>
 
 ```rust
-use mediator_sys::prelude::*;
+use mediator_sys::asynchronous::basic::*;
 use async_trait::async_trait;
 
 struct UserMessageRequest {

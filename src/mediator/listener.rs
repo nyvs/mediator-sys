@@ -1,4 +1,6 @@
 use core::fmt::Debug;
+
+/// A [`Listener`] is a closure that is generic over its received event `Ev`.
 pub trait Listener<Ev: Debug>: Fn(Ev) -> () + Send + 'static {}
 
 impl<Ev> Debug for dyn Listener<Ev>

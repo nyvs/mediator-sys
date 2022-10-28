@@ -1,15 +1,52 @@
+//! Mediator for synchronous and asynchronous needs
+//!
+//! mediator_sys provides multiple mediators.
+//! 
+//! # Quick Start
+//! 
+//! For synchronous needs, the [`BasicMediator`] suffices.
+//! The [`BasicAsyncMediator`] on the other hand is needed for asynchronous
+//! handlers. 
+//! If you need your handler to include some sort of dependency,
+//! use the [`CxAwareAsyncMediator`]. This mediator requires a user-defined
+//! type to be injected through its builder.
+//! 
+//! # Crate Architecture
+//! 
+//! The crate is structured in an additive way.
+//! The [`BasicMediator`] is used as a basis for [`BasicAsyncMediator`].
+//! In turn, the [`BasicAsyncMediator`] is used as a basis for the [`CxAwareAsyncMediator`].
+//! This way, code duplication is minimal and the code in general is less error-prone.
+//! 
+//! Each mediator consists of a module for its own builder, interface and the mediator itself.
+//! 
+//! Builders implement basic functionality [`builder::BuilderInternal`] and [`builder::BuilderFlow`] if
+//! the builder is required to always be able to return a valid mediator. 
+//! Otherwise, builders implement [`builder::TryBuilderInternal`] and [`builder::TryBuilderFlow`],
+//! which results in a return value of  [`Result<M, Self::Error>`], where `M` is the mediator type.
+//! 
+//! Interfaces contain trait definitions highlighting the user-facing API, 
+//! which are implemented by their mediator.
+//! 
+//! Lastly, the module for the mediator itself contains
+//! internal structure and implementation details for the
+//! respective mediator. 
+//! 
+//! [`BasicMediator`]: synchronous::basic::BasicMediator
+//! [`BasicAsyncMediator`]: asynchronous::basic::BasicAsyncMediator
+//! [`CxAwareAsyncMediator`]: asynchronous::contextaware::CxAwareAsyncMediator
+
 #![doc(html_root_url = "https://docs.rs/mediator-sys/1.0.0")]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
+
 mod mediator;
 
-pub mod prelude {
-    #[cfg(feature = "async")]
-    pub use super::mediator::asynchronous::{
-        basic::{basic::BasicAsyncMediator, interface::*},
-        contextaware::{contextaware::CxAwareAsyncMediator, interface::*},
-    };
-    pub use super::mediator::builder::*;
-    pub use super::mediator::synchronous::basic::{basic::BasicMediator, interface::*};
-}
+pub use mediator::synchronous;
+#[cfg(feature = "async")]
+pub use mediator::asynchronous;
+pub use mediator::builder;
+pub use mediator::listener;
+
 
 #[cfg(test)]
 mod test;

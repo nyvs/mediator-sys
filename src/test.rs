@@ -1,71 +1,8 @@
-use super::prelude::*;
-
-#[cfg(not(feature = "async"))]
-#[test]
-fn email_example_sync() {
-    struct UserMessageRequest {
-        msg: String,
-        priority: u8,
-    }
-
-    #[derive(Debug, Clone)]
-    enum NotifyEvent {
-        Ignore,
-        SendEmail(String),
-        SendTextMessage(String),
-    }
-
-    impl RequestHandler<UserMessageRequest, NotifyEvent> for BasicMediator<NotifyEvent> {
-        fn handle(&self, req: UserMessageRequest) {
-            match req.priority {
-                0 => self.publish(NotifyEvent::Ignore),
-                1..=5 => self.publish(NotifyEvent::SendEmail(req.msg)),
-                _ => self.publish(NotifyEvent::SendTextMessage(req.msg)),
-            };
-        }
-    }
-
-    let mediator = BasicMediator::<NotifyEvent>::builder()
-        .add_listener(move |ev| {
-            if let NotifyEvent::Ignore = ev {
-                println!("Ignored some Message")
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendEmail(msg) = ev {
-                println!("Send Email with Message: {}", msg)
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendTextMessage(msg) = ev {
-                println!("Send SMS with Message: {}", msg)
-            }
-        })
-        .build();
-
-    mediator.send(UserMessageRequest {
-        msg: String::from("Hello World"),
-        priority: 0,
-    });
-
-    mediator.send(UserMessageRequest {
-        msg: String::from("Is Rust Memory Safe?"),
-        priority: 2,
-    });
-
-    mediator.send(UserMessageRequest {
-        msg: String::from("New Rust Version"),
-        priority: 8,
-    });
-
-    mediator.next().ok();
-    mediator.next().ok();
-    mediator.next().ok();
-}
-
 #[cfg(not(feature = "async"))]
 #[test]
 fn atomic_test_sync() {
+    use crate::synchronous::basic::*;
+
     use std::sync::{Arc, Mutex};
 
     struct IncrementRequest;
@@ -104,84 +41,12 @@ fn atomic_test_sync() {
 
 #[cfg(feature = "async")]
 #[test]
-fn email_example_async() {
-    use async_trait::async_trait;
-
-    struct UserMessageRequest {
-        msg: String,
-        priority: u8,
-    }
-
-    #[derive(Debug, Clone)]
-    enum NotifyEvent {
-        Ignore,
-        SendEmail(String),
-        SendTextMessage(String),
-    }
-
-    #[async_trait]
-    impl AsyncRequestHandler<UserMessageRequest, NotifyEvent> for BasicAsyncMediator<NotifyEvent> {
-        async fn handle(&self, req: UserMessageRequest) {
-            match req.priority {
-                0 => self.publish(NotifyEvent::Ignore).await,
-                1..=5 => self.publish(NotifyEvent::SendEmail(req.msg)).await,
-                _ => self.publish(NotifyEvent::SendTextMessage(req.msg)).await,
-            };
-        }
-    }
-
-    let async_mediator = BasicAsyncMediator::<NotifyEvent>::builder()
-        .add_listener(move |ev| {
-            if let NotifyEvent::Ignore = ev {
-                println!("Ignored some Message")
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendEmail(msg) = ev {
-                println!("Send Email with Message: {}", msg)
-            }
-        })
-        .add_listener(move |ev| {
-            if let NotifyEvent::SendTextMessage(msg) = ev {
-                println!("Send SMS with Message: {}", msg)
-            }
-        })
-        .build();
-
-    async_std::task::block_on(async {
-        async_mediator
-            .send(UserMessageRequest {
-                msg: String::from("Hello World"),
-                priority: 0,
-            })
-            .await;
-
-        async_mediator
-            .send(UserMessageRequest {
-                msg: String::from("Is Rust Memory Safe?"),
-                priority: 2,
-            })
-            .await;
-
-        async_mediator
-            .send(UserMessageRequest {
-                msg: String::from("New Rust Version"),
-                priority: 8,
-            })
-            .await;
-
-        async_mediator.next().await.ok();
-        async_mediator.next().await.ok();
-        async_mediator.next().await.ok();
-    });
-}
-
-#[cfg(feature = "async")]
-#[test]
 fn atomic_test_async() {
     use async_trait::async_trait;
     use std::sync::{Arc, Mutex};
 
+    use crate::asynchronous::basic::*;
+    
     struct IncrementRequest;
     #[derive(Debug, Clone)]
     struct IncrementEvent;
@@ -224,6 +89,8 @@ fn atomic_test_async() {
 fn cxaware_mediator_atomic_test_async() {
     use async_trait::async_trait;
     use std::sync::{Arc, Mutex};
+
+    use crate::asynchronous::contextaware::*;
 
     struct IncrementRequest;
     #[derive(Debug, Clone)]
@@ -273,6 +140,8 @@ fn cxaware_mediator_atomic_test_async() {
 fn cxaware_mediator_atomic_arc_test_async() {
     use async_trait::async_trait;
     use std::sync::{Arc, Mutex};
+
+    use crate::asynchronous::contextaware::*;
 
     struct IncrementRequest;
     #[derive(Debug, Clone)]

@@ -18,3 +18,8 @@ async-trait =  { version = "0.1.57", optional = true }
 [features]
 default = []
 async = ["async-trait", "async-std"]
+
+[package.metadata.docs.rs]
+# RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --all-features --no-deps --open
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
