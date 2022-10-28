@@ -20,6 +20,8 @@ use super::*;
 /// ```
 /// use mediator_sys::asynchronous::contextaware::*;
 /// use std::sync::Arc;
+/// use async_trait::async_trait;
+/// use async_std;
 ///
 /// #[derive(Debug, Clone)]
 /// enum MyEvent {
@@ -30,15 +32,35 @@ use super::*;
 /// #[derive(Debug, Default)]
 /// struct MyContext(Arc<u32>);
 ///
-/// let mediator = CxAwareAsyncMediator::<MyContext, MyEvent>::builder()
-///     .add_listener(move |ev| {
-///         /* Your listening logic */
-///     })
-///     .add_listener(move |ev| {
-///         /* Your listening logic */
-///     })
-///     .add_dependency(MyContext::default())
-///     .build();
+/// struct Request(u32);
+///
+/// #[async_trait]
+/// impl CxAwareAsyncRequestHandler<MyContext, Request, MyEvent> for CxAwareAsyncMediator<MyContext, MyEvent> {
+///     async fn handle(&self, req: Request, dep: &MyContext) {
+///         let my_context: u32 = *dep.0;
+///         match req.0 {
+///             1 => self.publish(MyEvent::One).await,
+///             2 => self.publish(MyEvent::Two).await,
+///             _ => ()
+///         };
+///     }
+/// }
+///
+/// async_std::task::block_on(async {
+///     let mediator = CxAwareAsyncMediator::<MyContext, MyEvent>::builder()
+///         .add_listener(move |ev| {
+///             /* Your listening logic */
+///         })
+///         .add_listener(move |ev| {
+///             /* Your listening logic */
+///         })
+///         .add_dependency(MyContext::default())
+///         .build()
+///         .unwrap();
+///
+///     mediator.send(Request(1)).await;
+///     mediator.next().await.ok();
+/// });
 ///
 #[cfg(feature = "async")]
 #[derive(Debug)]

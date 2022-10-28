@@ -27,6 +27,18 @@ use super::*;
 ///     Two
 /// }
 ///
+/// struct Request(u32);
+///
+/// impl RequestHandler<Request, MyEvent> for BasicMediator<MyEvent> {
+///     fn handle(&self, req: Request) {
+///         match req.0 {
+///             1 => self.publish(MyEvent::One),
+///             2 => self.publish(MyEvent::Two),
+///             _ => ()
+///         };
+///     }
+/// }
+///
 /// let mediator = BasicMediator::<MyEvent>::builder()
 ///     .add_listener(move |ev| {
 ///         /* Your listening logic */
@@ -35,6 +47,9 @@ use super::*;
 ///         /* Your listening logic */
 ///     })
 ///     .build();
+///
+///     mediator.send(Request(1));
+///     mediator.next().ok();
 ///
 #[derive(Debug)]
 pub struct BasicMediator<Ev>
