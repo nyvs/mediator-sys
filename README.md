@@ -7,7 +7,7 @@ For more info and explanation, please see the [docs][docs-rs-url].
 
 ## Warning
 This crate has been renamed and is soon phasing out.
-Please use [mediatrix][crates-io-url] instead.
+Please use [mediatrix][crates-io-url-mediatrix] instead.
 
 ## Usage
 ### Sync
@@ -168,5 +168,6 @@ Also, please do not hesitate and open an issue when needed. I am happy to help!
 
 [crates-io-badge]: https://img.shields.io/crates/v/mediator-sys.svg
 [crates-io-url]: https://crates.io/crates/mediator-sys
+[crates-io-url-mediatrix]: https://crates.io/crates/mediatrix
 [docs-rs-img]: https://docs.rs/mediator-sys/badge.svg
 [docs-rs-url]: https://docs.rs/mediator-sys
