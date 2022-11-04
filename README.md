@@ -5,6 +5,10 @@
 Strongly typed, extensible event mediator.
 For more info and explanation, please see the [docs][docs-rs-url].
 
+## Warning
+This crate has been renamed and is soon phasing out.
+Please use [mediatrix][crates-io-url] instead.
+
 ## Usage
 ### Sync
 ```rust

@@ -34,7 +34,7 @@
 //! [`BasicAsyncMediator`]: asynchronous::basic::BasicAsyncMediator
 //! [`CxAwareAsyncMediator`]: asynchronous::contextaware::CxAwareAsyncMediator
 
-#![doc(html_root_url = "https://docs.rs/mediator-sys/2.0.0")]
+#![doc(html_root_url = "https://docs.rs/mediator-sys/2.0.1")]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 mod mediator;
